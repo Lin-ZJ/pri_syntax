@@ -7,7 +7,7 @@ void syntax_q931(char *str)
 	int octet[len];
 	int i = 0;
 	int bit = 0;
-	int statbit = 0;
+//	int statbit = 0;
 	_q931 q931;
 
 	for (i = 0; i < len; i++) {
@@ -76,7 +76,7 @@ void syntax_q931(char *str)
 		printf("TEI=%d Call Ref: len= %d (Sent from originator)\n", q931.TEI, q931.L_c_ref);
 	}
 
-	statbit = 6+q931.L_c_ref;
+//	statbit = 6+q931.L_c_ref;
 	bit = 6+q931.L_c_ref;
 	q931.Mes_Typ = (octet[bit] & 0x7f) >> 0;
 
@@ -213,824 +213,87 @@ void syntax_q931(char *str)
 	{
 		switch (octet[bit]) {
 			case Sen_com:
-				printf("\n[ a1 ]\n");
-				printf("   |-----> Sending complete (len= 1)\n");
-				bit++;
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Sending_complete(octet, bit, len, q931);
 				break;
 
-			case Rep_ind | 0x80:
 			case Rep_ind:
-				printf("\n[ 50 ]\n");
-				printf("   |-----> Repeat indicator (len= 1)\n");
-				bit++;
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Repeat_indicator(octet, bit, len, q931);
 				break;
 
 			case Net_spe_fac:
-				printf("\n[ 20");
-				bit++;
-				if (bit < len) {
-					if ((bit+octet[bit]) < len) {
-						for(i = 0; i <= octet[bit]; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						printf(" ]\n");
-						printf("   |-----> Network-specific facilities (len= %d)\n", octet[bit]);
-						bit += octet[bit]+1;
-					}
-					else {
-						for(i = 0; i < len-bit; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						bit += len-bit+1;
-						printf(" :::::Incomplete Date\n");
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Network_specific_facilities(octet, bit, len, q931);
 				break;
 
 			case Key_fac:
-				printf("\n[ 2c");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Key_fac_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Keypad facility (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Keypad facility is %d\n", Key_fac_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Keypad_facility(octet, bit, len, q931);
 				break;
 
 			case Cag_par_num:
-				printf("\n[ 6c");
-				bit++;
-				if (bit < len) {
-					if ((bit+octet[bit]) < len) {
-						for(i = 0; i <= octet[bit]; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						printf(" ]\n");
-						printf("   |-----> Calling party number (len= %d)\n", octet[bit]);
-						bit += octet[bit]+1;
-					}
-					else {
-						for(i = 0; i < len-bit; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						bit += len-bit+1;
-						printf(" :::::Incomplete Date\n");
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Calling_party_number(octet, bit, len, q931);
 				break;
 
 			case Cag_par_sub:
-				printf("\n[ 6d");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Cag_par_sub_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Calling party subaddress (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Calling party subaddress is %d\n", Cag_par_sub_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Calling_party_subaddress(octet, bit, len, q931);
 				break;
 
 			case Cad_par_num:
-				printf("\n[ 70");
-				bit++;
-				if (bit < len) {
-					if ((bit+octet[bit]) < len) {
-						for(i = 0; i <= octet[bit]; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						printf(" ]\n");
-						printf("   |-----> Called party number (len= %d)\n", octet[bit]);
-						bit += octet[bit]+1;
-					}
-					else {
-						for(i = 0; i < len-bit; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						bit += len-bit+1;
-						printf(" :::::Incomplete Date\n");
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Called_party_number(octet, bit, len, q931);
 				break;
 
 			case Cad_par_sub:
-				printf("\n[ 71");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Cad_par_sub_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Called party subaddress (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Called party subaddress is %d\n", Cad_par_sub_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Called_party_subaddress(octet, bit, len, q931);
 				break;
 
 			case Tra_net_sel:
-				printf("\n[ 78");
-				bit++;
-				if (bit < len) {
-					if ((bit+octet[bit]) < len) {
-						for(i = 0; i <= octet[bit]; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						printf(" ]\n");
-						printf("   |-----> Transit network selection (len= %d)\n", octet[bit]);
-						bit += octet[bit]+1;
-					}
-					else {
-						for(i = 0; i < len-bit; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						bit += len-bit+1;
-						printf(" :::::Incomplete Date\n");
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Transit_network_selection(octet, bit, len, q931);
 				break;
 
 			case Dat_tim:
-				printf("\n[ 29");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Dat_tim_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Date/time (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Date/time is %d\n", Dat_tim_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-					case CONNECT:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Date_time(octet, bit, len, q931);
 				break;
 
 			case Pro_ind:
-				printf("\n[ 1e");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Pro_ind_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Progress indicator (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Progress indicator is %d\n", Pro_ind_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-					case CONNECT:
-					case DISCONNECT:
-					case ALERTING:
-					case CALL_PROCEEDING:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Progress_indicator(octet, bit, len, q931);
 				break;
 
 			case Sig:
-				printf("\n[ 34");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Sig_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Signal (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Signal is %d\n", Sig_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case SETUP:
-					case CONNECT:
-					case DISCONNECT:
-					case ALERTING:
-					case RELEASE:
-					case CONNECT_ACKNOWLEDGE:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Signal(octet, bit, len, q931);
 				break;
 
 			case Cau:
-				printf("\n[ 08");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Cau_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Cause (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Cause is %d\n", Cau_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case DISCONNECT:
-					case RELEASE:
-					case RELEASE_COMPLETE:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Cause(octet, bit, len, q931);
 				break;
 
 			case Cha_ide:
-				printf("\n[ 18");
-				bit++;
-				if (bit < len) {
-					if ((bit+octet[bit]) < len) {
-						for(i = 0; i <= octet[bit]; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						printf(" ]\n");
-						printf("   |-----> Channel identification (len= %d)\n", octet[bit]);
-						bit += octet[bit]+1;
-					}
-					else {
-						for(i = 0; i < len-bit; i++) {
-							if (octet[bit+i] < 16) {
-								printf(" 0%x", octet[bit+i]);
-							}
-							else {
-								printf(" %x", octet[bit+i]);
-							}
-						}
-						bit += len-bit+1;
-						printf(" :::::Incomplete Date\n");
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case CONNECT:
-					case RESTART_ACKNOWLEDGE:
-					case ALERTING:
-					case CALL_PROCEEDING:
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Channel_identification(octet, bit, len, q931);
 				break;
 
 			case Dis:
-				printf("\n[ 28");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Dis_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Display (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Display is %d\n", Dis_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date");
-				}
-				switch (q931.Mes_Typ) {
-					case CONNECT:
-					case RELEASE_COMPLETE:
-					case RELEASE:
-					case DISCONNECT:
-					case CONNECT_ACKNOWLEDGE:
-					case RESTART_ACKNOWLEDGE:
-					case ALERTING:
-					case CALL_PROCEEDING:
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Display(octet, bit, len, q931);
 				break;
 
 			case Res_ind:
-				printf("\n[ 79");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Res_ind_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Restart indicator (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Restart indicator is %d\n", Res_ind_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case RESTART_ACKNOWLEDGE:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Restart_indicator(octet, bit, len, q931);
 				break;
 
 			case Bea_cap:
-				printf("\n[ 04");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Bea_cap_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Bearer capability (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Bearer capability is %d\n", Bea_cap_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case CONNECT:
-					case ALERTING:
-					case CALL_PROCEEDING:
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Bearer_capability(octet, bit, len, q931);
 				break;
 
 			case Low_lay_com:
-				printf("\n[ 7c");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Low_lay_com_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> Low layer compatibility (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of Low layer compatibility is %d\n", Low_lay_com_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case CONNECT:
-					case SETUP:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = Low_layer_compatibility(octet, bit, len, q931);
 				break;
 
 			case Hig_lay_com:
-				printf("\n[ 7d");
-				bit++;
-				if (bit < len) {
-					if (octet[bit] <= Hig_lay_com_max) {
-						if ((bit+octet[bit]) < len) {
-							for(i = 0; i <= octet[bit]; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							printf(" ]\n");
-							printf("   |-----> High layer compatibility (len= %d)\n", octet[bit]);
-							bit += octet[bit]+1;
-						}
-						else {
-							for(i = 0; i < len-bit; i++) {
-								if (octet[bit+i] < 16) {
-									printf(" 0%x", octet[bit+i]);
-								}
-								else {
-									printf(" %x", octet[bit+i]);
-								}
-							}
-							bit += len-bit+1;
-							printf(" :::::Incomplete Date\n");
-						}
-					}
-					else {
-						printf(" ]\n   |-----> Error! Max Lenght of High layer compatibility is %d\n", Hig_lay_com_max);
-					}
-				}
-				else {
-					printf(" :::::Incomplete Date\n");
-				}
-				switch (q931.Mes_Typ) {
-					case CONNECT:
-					case SETUP:
-					case ALERTING:
-					case CALL_PROCEEDING:
-						break;
-					default:
-						printf("   |-----> [ Not Allow Appear ]\n");
-				}
+				bit = High_layer_compatibility(octet, bit, len, q931);
 				break;
 
 			default:
 				if (octet[bit] < 16) {
-					printf("\n[ 0%x ]\n   |-----> Unknown\n", octet[bit]);
+					printf("\n[ 0%x ]\n   |-----> Unknown\n", octet[bit]+2);
 				}
 				else {
-					printf("\n[ %x ]\n   |-----> Unknown\n", octet[bit]);
+					printf("\n[ %x ]\n   |-----> Unknown\n", octet[bit]+2);
 				}
 				bit++;
 				break;

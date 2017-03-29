@@ -1,4 +1,5 @@
-#include "pri.h"
+#include "pri_main.h"
+int l;
 
 char *stdin_get_str(char *str)
 {
@@ -31,6 +32,7 @@ char *fp_get_time(char *ttime, char *str)
 			return ttime;
 		}
 	}
+	return NULL;
 }
 
 char *fp_get_time_easy(char *ttime, char *str)
@@ -45,6 +47,7 @@ char *fp_get_time_easy(char *ttime, char *str)
 			ttime[j] = str[i+2];
 		}
 	}
+	return NULL;
 }
 
 char *fp_get_q921(char *tq921, char *str)
@@ -75,6 +78,7 @@ char *fp_get_q921(char *tq921, char *str)
 			}
 		}
 	}
+	return NULL;
 }
 
 char *fp_get_q931(char *tq931, char *str)
@@ -103,6 +107,7 @@ char *fp_get_q931(char *tq931, char *str)
 			}
 		}
 	}
+	return NULL;
 }
 
 int getInt(char *p)
@@ -329,7 +334,7 @@ c3:					case 3:
 								break;
 						}
 						break;
-c4:					case 4:
+					case 4:
 						if (!c3_flag)
 							goto c3;
 						break;

@@ -1,21 +1,18 @@
-#ifndef _PRI_H_
-#define _PRI_H_
+#ifndef _PRI_MAIN_H_
+#define _PRI_MAIN_H_
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
-#include "pri_func.h"
-#include "pri_q931.h"
-#include "pri_q921.h"
 
 #define log_path "modify.log"
 #define U_MAX 200
 
 #define _frame_flag	0x03
 
-typedef struct {
+typedef struct{
 	unsigned int SAPI:6;
 	unsigned int C_R:1;
 	unsigned int EA_0:1;
@@ -89,5 +86,10 @@ typedef struct {
 #define Res_ind_max			3
 #define Low_lay_com_max		18
 #define Hig_lay_com_max		5
+
+#include "pri_func.h"
+#include "pri_q931.h"
+#include "pri_q921.h"
+#include "pri_syntax.h"
 
 #endif

@@ -37,4 +37,3 @@ int modify_log(char *path, char *modify_path)
 
 	return 0;
 }
-
