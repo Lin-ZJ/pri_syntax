@@ -1,2 +1,2 @@
 # pri_syntax
-syntax pri data
+## syntax pri data
