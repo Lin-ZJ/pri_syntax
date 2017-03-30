@@ -499,6 +499,151 @@ void _Bearer_capability(int octet[], int bit)
 						printf("| spare_0: %x\n", spare_0);
 					}
 				}
+				if (((info_trans_cap == 0x08) && ((user_info_lay_pro == 0x01) || (user_info_lay_pro == 0x08))) \
+				 		|| ((info_trans_cap == 0x10) && ((user_info_lay_pro == 0x02) || (user_info_lay_pro == 0x03)))){
+					if ((bit-statbit-len) > 0) {
+						bit++;
+						ext = (octet[bit]&0x80) >> 7;
+						printf("   |-----> | Ext: %x ", ext);
+						int num_stop_bits = (octet[bit]&0x60) >> 5;
+						printf("| Num_stop_bits: ");
+						switch (num_stop_bits) {
+							case 0:
+								printf("Not used ");
+								break;
+							case 1:
+								printf("1 bit ");
+								break;
+							case 2:
+								printf("1.5 bits ");
+								break;
+							case 3:
+								printf("2 bit ");
+								break;
+							default:
+								printf("Error ");
+								break;
+						}
+						int num_data_bits = (octet[bit]&0x18) >> 3;
+						printf("| Num_data_bits: ");
+						switch (num_data_bits) {
+							case 0:
+								printf("Not used ");
+								break;
+							case 1:
+								printf("5 bits ");
+								break;
+							case 2:
+								printf("7 bits ");
+								break;
+							case 3:
+								printf("8 bits ");
+							default:
+								printf("Error ");
+								break;
+						}
+						int parity = (octet[bit]&0x07);
+						printf("| Parity: ");
+						switch (parity) {
+							case 0:
+								printf("Odd\n");
+								break;
+							case 2:
+								printf("Even\n");
+								break;
+							case 3:
+								printf("None\n");
+								break;
+							case 4:
+								printf("Forced to 0\n");
+								break;
+							case 5:
+								printf("Forced to 1\n");
+								break;
+							default:
+								printf("Erro\n");
+								break;
+						}
+					}
+				}
+				if (((info_trans_cap == 0x08) && ((user_info_lay_pro == 0x01) || (user_info_lay_pro == 0x08))) \
+				 		|| ((info_trans_cap == 0x10) && ((user_info_lay_pro == 0x02) || (user_info_lay_pro == 0x03)))){
+					if ((bit-statbit-len) > 0) {
+						bit++;
+						ext = (octet[bit]&0x80) >> 7;
+						printf("   |-----> | Ext: %x ", ext);
+						int duplex_mode = (octet[bit]&0x40) >> 6;
+						printf("| Duplex_mode: ");
+						switch (duplex_mode) {
+							case 0:
+								printf("Half duplex ");
+								break;
+							case 1:
+								printf("Full duplex ");
+								break;
+							default:
+								printf("Error ");
+								break;
+						}
+						int modem_type = (octet[bit]&0x3f);
+						printf("| Modem_type: ");
+						if ((modem_type > 0x00) && (modem_type < 0x05)) {
+							printf("National use\n");
+						}
+						else if ((modem_type > 0x20) && (modem_type < 0x2f)) {
+							printf("National use\n");
+						}
+						else if ((modem_type > 0x30) && (modem_type < 0x3f)) {
+							printf("User specified\n");
+						}
+						else {
+							switch (modem_type) {
+								case 0x11:
+									printf("Recommendation V.21\n");
+									break;
+								case 0x12:
+									printf("Recommendation V.22\n");
+									break;
+								case 0x13:
+									printf("Recommendation V.22 bis\n");
+									break;
+								case 0x14:
+									printf("Recommendation V.23\n");
+									break;
+								case 0x15:
+									printf("Recommendation V.26\n");
+									break;
+								case 0x16:
+									printf("Recommendation V.26 bis\n");
+									break;
+								case 0x17:
+									printf("Recommendation V.26 ter\n");
+									break;
+								case 0x18:
+									printf("Recommendation V.27\n");
+									break;
+								case 0x19:
+									printf("Recommendation V.27 bis\n");
+									break;
+								case 0x1a:
+									printf("Recommendation V.27 ter\n");
+									break;
+								case 0x1b:
+									printf("Recommendation V.29\n");
+									break;
+								case 0x1d:
+									printf("Recommendation V.32\n");
+									break;
+								case 0x1e:
+									printf("Recommendation V.34\n");
+									break;
+								default:
+									printf("Error\n");
+									break;
+							}
+						}
+					}
+				}
 				break;
 			case 2:
 				ext = (octet[bit]&0x80) >> 7;
@@ -538,6 +683,43 @@ void _Bearer_capability(int octet[], int bit)
 					default:
 						printf("| Error\n");
 						break;
+				}
+				if (user_info_lay_pro == 0x0c) {
+					if (bit-statbit-len > 0) {
+						bit++;
+						ext = (octet[bit]&0x80) >> 7;
+						printf("   |-----> | Ext: %x ", ext);
+						spare_0 = (octet[bit]&0x70) >> 4;
+						printf("| Spare: %x ", spare_0);
+						int add_lay_3_pro = (octet[bit]&0x0f);
+						printf("| Add_lay_3_pro: ");
+						if (ext == 0) {
+							switch (add_lay_3_pro) {
+								case 15:
+									printf("Internet Protocol (RFC 791)(ISO/IEC TR 9577)\n");
+									break;
+								case 12:
+									printf("Point-to-point Protocol (RFC 1548)\n");
+									break;
+								default:
+									printf("Error\n");
+									break;
+							}
+						}
+						else {
+							switch (add_lay_3_pro) {
+								case 12:
+									printf("Internet Protocol (RFC 791)(ISO/IEC TR 9577)\n");
+									break;
+								case 15:
+									printf("Point-to-point Protocol (RFC 1548)\n");
+									break;
+								default:
+									printf("Error\n");
+									break;
+							}
+						}
+					}
 				}
 				break;
 			default:
