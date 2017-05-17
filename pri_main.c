@@ -204,6 +204,20 @@ help:								printf("Usage :\n");
 									printf("	exit  : exit this program\n");
 									printf("	clear : clear the screen\n");
 									printf("	type <q921|q931> [-s]\n");
+									// uuid_t uu;
+									// char str_uuid[100000][36];
+									// for (i = 0; i < 100000; i++) {
+        							// 	uuid_generate(uu);
+									// 	uuid_unparse(uu, str_uuid[i]);
+									// 	printf("	%s\n", str_uuid[i]);
+									// }
+									// int j = 0;
+									// for (i = 0; i < 100000; i++) {
+									// 	for (j = i+1; j < 100000; j++) {
+									// 		if (strcmp(str_uuid[i], str_uuid[j]) == 0)
+									// 			printf("same\n");
+									// 	}
+									// }
 								} else {
 									printf("Error Commond, No More Parameter\n");
 								}
@@ -331,6 +345,7 @@ c3:					case 3:
 								fclose(fp);
 								break;
 							default:
+								goto help;
 								break;
 						}
 						break;

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include <uuid/uuid.h>
 
 #define log_path "modify.log"
 #define U_MAX 200

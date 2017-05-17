@@ -1,5 +1,7 @@
 #include "pri_syntax.h"
 
+int spare_0 = 0;
+
 int Reserved(int octet[], int bit, int len, _q931 q931)
 {
 	return 0;
@@ -202,7 +204,7 @@ void _Bearer_capability(int octet[], int bit)
 				}
 				if (((info_trans_cap == 0x08) && ((user_info_lay_pro == 0x01) || (user_info_lay_pro == 0x08))) \
 				 		|| ((info_trans_cap == 0x10) && ((user_info_lay_pro == 0x02) || (user_info_lay_pro == 0x03)))){
-					if ((bit-statbit-len) > 0) {
+					if ((bit-statbit) < len) {
 						bit++;
 						ext = (octet[bit]&0x80) >> 7;
 						printf("   |-----> | Ext: %x ", ext);
@@ -331,9 +333,8 @@ void _Bearer_capability(int octet[], int bit)
 						}
 					}
 				}
-				int spare_0 = 0;
 				if (user_info_lay_pro == 0x01) {
-					if ((bit-statbit-len) > 0) {
+					if ((bit-statbit) < len) {
 						bit++;
 						ext = (octet[bit]&0x80) >> 7;
 						printf("   |-----> | Ext: %x ", ext);
@@ -413,7 +414,7 @@ void _Bearer_capability(int octet[], int bit)
 					}
 				}
 				if (user_info_lay_pro == 0x08) {
-					if ((bit-statbit-len) > 0) {
+					if ((bit-statbit) < len) {
 						bit++;
 						ext = (octet[bit]&0x80) >> 7;
 						printf("   |-----> | Ext: %x ", ext);
@@ -501,7 +502,7 @@ void _Bearer_capability(int octet[], int bit)
 				}
 				if (((info_trans_cap == 0x08) && ((user_info_lay_pro == 0x01) || (user_info_lay_pro == 0x08))) \
 				 		|| ((info_trans_cap == 0x10) && ((user_info_lay_pro == 0x02) || (user_info_lay_pro == 0x03)))){
-					if ((bit-statbit-len) > 0) {
+					if ((bit-statbit) < len) {
 						bit++;
 						ext = (octet[bit]&0x80) >> 7;
 						printf("   |-----> | Ext: %x ", ext);
@@ -568,7 +569,7 @@ void _Bearer_capability(int octet[], int bit)
 				}
 				if (((info_trans_cap == 0x08) && ((user_info_lay_pro == 0x01) || (user_info_lay_pro == 0x08))) \
 				 		|| ((info_trans_cap == 0x10) && ((user_info_lay_pro == 0x02) || (user_info_lay_pro == 0x03)))){
-					if ((bit-statbit-len) > 0) {
+					if ((bit-statbit) < len) {
 						bit++;
 						ext = (octet[bit]&0x80) >> 7;
 						printf("   |-----> | Ext: %x ", ext);
@@ -685,7 +686,7 @@ void _Bearer_capability(int octet[], int bit)
 						break;
 				}
 				if (user_info_lay_pro == 0x0c) {
-					if (bit-statbit-len > 0) {
+					if ((bit-statbit) < len) {
 						bit++;
 						ext = (octet[bit]&0x80) >> 7;
 						printf("   |-----> | Ext: %x ", ext);
@@ -726,10 +727,6 @@ void _Bearer_capability(int octet[], int bit)
 				break;
 		}
 	}
-
-
-	printf("%d\n", bit-statbit);
-	printf("%d\n", len);
 }
 
 int Bearer_capability(int octet[], int bit, int len, _q931 q931)
@@ -846,6 +843,176 @@ int Call_state(int octet[], int bit, int len, _q931 q931)
 	return 0;
 }
 
+void _Channel_identification(int octet[], int bit)
+{
+	int len = octet[bit];
+	int statbit = bit;
+
+	bit++;
+	int ext = (octet[bit]&0x80) >> 7;
+	printf("   |-----> | Ext: %x ", ext);
+	int int_id = (octet[bit]&0x40) >> 6;
+	printf("| Int_id: ");
+	switch (int_id) {
+		case 0:
+			printf("Interface implicitly identified ");
+			break;
+		case 1:
+			printf("Interface explicitly identified ");
+			break;
+		default:
+			printf("Error ");
+			break;
+	}
+	int int_type = (octet[bit]&0x20) >> 5;
+	printf("| Int_type: ");
+	switch (int_type) {
+		case 0:
+			printf("Basic interface ");
+			break;
+		case 1:
+			printf("Other interface (primary rate) ");
+			break;
+		default:
+			printf("Error ");
+			break;
+	}
+	spare_0 = (octet[bit]&0x10) >> 4;
+	printf("| spare_0: %x\n", spare_0);
+	int pref_excl = (octet[bit]&0x08) >> 3;
+	printf("           | Pref_excl: ");
+	switch (pref_excl) {
+		case 0:
+			printf("Indicated channel is preferred ");
+			break;
+		case 1:
+			printf("Exclusive ");
+			break;
+		default:
+			printf("Error ");
+			break;
+	}
+	int dchan_ind = (octet[bit]&0x04) >> 2;
+	printf("| Dchan_ind: ");
+	switch (dchan_ind) {
+		case 0:
+			printf("isn't D-channel ");
+			break;
+		case 1:
+			printf("is D-channel ");
+			break;
+		default:
+			printf("Error ");
+			break;
+	}
+	int info_chan_selec = (octet[bit]&0x03);
+	printf("| Info_chan_selec: ");
+	switch (info_chan_selec) {
+		case 0:
+			if (int_type == 0) {
+				printf("No channel\n");
+			}
+			else {
+				printf("No channel\n");
+			}
+			break;
+		case 1:
+			if (int_type == 0) {
+				printf("B1 channel\n");
+			}
+			else {
+				printf("indicated in following\n");
+			}
+			break;
+		case 2:
+			if (int_type == 0) {
+				printf("B2 channel\n");
+			}
+			else {
+				printf("Reserved\n");
+			}
+			break;
+		case 3:
+			if (int_type == 0) {
+				printf("Any channel\n");
+			}
+			else {
+				printf("Any channel\n");
+			}
+		default:
+			printf("Error\n");
+			break;
+	}
+	if (int_id == 0) {
+		if ((bit-statbit) < len) {
+			bit++;
+			ext = (octet[bit]&0x80) >> 7;
+			printf("   |-----> | Ext: %x ", ext);
+			int inter_id = (octet[bit]&0x7f);
+			printf("| Inter_id: 0x%x \n", inter_id);
+		}
+	}
+	if (int_type != 0) {
+		if ((bit-statbit) < len) {
+			bit++;
+			ext = (octet[bit]&0x80) >> 7;
+			printf("   |-----> | Ext: %x ", ext);
+			int code_stand = (octet[bit]&0x60) >> 5;
+			printf("| Code_stand: ");
+			switch (code_stand) {
+				case 0:
+					printf("ITU-T standardized ");
+					break;
+				case 1:
+					printf("ISO/IEC Standard ");
+					break;
+				case 2:
+					printf("National standard ");
+					break;
+				case 3:
+					printf("Standard defined for the network ");
+					break;
+				default:
+					printf("Error ");
+					break;
+			}
+			int num_map = (octet[bit]&0x10) >> 4;
+			printf("| num_map: ");
+			switch (num_map) {
+				case 0:
+					printf("indicated by the number ");
+					break;
+				case 1:
+					printf("indicated by the slot map ");
+					break;
+				default:
+					printf("Error ");
+					break;
+			}
+			int chan_map_type = (octet[bit]&0x0f);
+			printf("| chan_map_type: ");
+			switch (chan_map_type) {
+				case 3:
+					printf("B-channel units ");
+					break;
+				case 6:
+					printf("H0-channel units ");
+					break;
+				case 8:
+					printf("H11-channel units ");
+					break;
+				case 9:
+					printf("H12-channel units ");
+					break;
+				default:
+					printf("%d(reserved) ", chan_map_type);
+					break;
+			}
+			printf("\n");
+		}
+	}
+}
+
 int Channel_identification(int octet[], int bit, int len, _q931 q931)
 {
 	int i;
@@ -863,6 +1030,7 @@ int Channel_identification(int octet[], int bit, int len, _q931 q931)
 			}
 			printf(" ]\n");
 			printf("   |-----> Channel identification (len= %d)\n", octet[bit]+2);
+			_Channel_identification(octet, bit);
 			bit += octet[bit]+1;
 		}
 		else {
