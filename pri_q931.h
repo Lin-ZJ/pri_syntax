@@ -4,5 +4,6 @@
 #include "pri_main.h"
 
 void syntax_q931(char *str);
+void syntax_q931_list(char *str);
 
 #endif

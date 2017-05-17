@@ -1,5 +1,9 @@
 #include "pri_q931.h"
 
+void syntax_q931_list(char *str)
+{
+}
+
 void syntax_q931(char *str)
 {
 	int len = strlen(str);
@@ -290,10 +294,10 @@ void syntax_q931(char *str)
 
 			default:
 				if (octet[bit] < 16) {
-					printf("\n[ 0%x ]\n   |-----> Unknown\n", octet[bit]+2);
+					printf("\n[ 0%x ]\n   |-----> Unknown\n", octet[bit]);
 				}
 				else {
-					printf("\n[ %x ]\n   |-----> Unknown\n", octet[bit]+2);
+					printf("\n[ %x ]\n   |-----> Unknown\n", octet[bit]);
 				}
 				bit++;
 				break;

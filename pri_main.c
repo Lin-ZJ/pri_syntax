@@ -117,6 +117,7 @@ int getInt(char *p)
 	if (strcmp(p, "clear") == 0) return 2;
 	if (strcmp(p, "type") == 0) return 3;
 	if (strcmp(p, "print") == 0) return 4;
+	if (strcmp(p, "syntax") == 0) return 5;
 	return -1;
 }
 
@@ -204,6 +205,7 @@ help:								printf("Usage :\n");
 									printf("	exit  : exit this program\n");
 									printf("	clear : clear the screen\n");
 									printf("	type <q921|q931> [-s]\n");
+									printf("	syntax <q931>\n");
 									// uuid_t uu;
 									// char str_uuid[100000][36];
 									// for (i = 0; i < 100000; i++) {
@@ -244,8 +246,16 @@ help:								printf("Usage :\n");
 									goto c2;
 								}
 								break;
+							case 5:
+								if ((count < 2)) {
+									printf("Usage : syntax <q931>\n");
+								} else {
+									c1_flag = 1;
+									goto c2;
+								}
+								break;
 							default:
-                                goto help;
+								goto help;
 								break;
 						}
 						break;
@@ -297,6 +307,29 @@ c2:					case 2:
 									goto c3;
 								}
 								break;
+							case 15:
+								if (count == 2) {
+									printf("syntax q931\n");
+									fp = fopen(argv[1], "a+");
+									if (fp != NULL) {
+										while(!feof(fp))
+										{
+											fp_get_str(c, fp);
+											if(strcmp(c, "\0") != 0) {
+												fp_get_time(ttime, c);
+												fp_get_q931(tq, c);
+												if (strcmp(tq, "\0") != 0) {
+													printf("%s %s\n", ttime, tq);
+													syntax_q931_list(tq);
+												}
+											}
+										}
+									}
+									fclose(fp);
+								} else {
+									printf("Error Commond, No More Parameter\n");
+								}
+								break;
 							default:
 								goto help;
 								break;
@@ -318,13 +351,13 @@ c3:					case 3:
 											fp_get_q921(tq, c);
 											if (strcmp(tq, "\0") != 0) {
 												printf("%s %s\n", ttime, tq);
-                                                syntax_q921(tq);
-                                            }
+												syntax_q921(tq);
+											}
 										}
 									}
 								}
 								fclose(fp);
-                                break;
+								break;
 							case 13:
 								printf("syntax q931\n");
 								fp = fopen(argv[1], "a+");
@@ -337,8 +370,8 @@ c3:					case 3:
 											fp_get_q931(tq, c);
 											if (strcmp(tq, "\0") != 0) {
 												printf("%s %s\n", ttime, tq);
-                                                syntax_q931(tq);
-                                            }
+												syntax_q931(tq);
+											}
 										}
 									}
 								}
