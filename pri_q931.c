@@ -2,6 +2,58 @@
 
 void syntax_q931_list(char *str)
 {
+	int len = strlen(str);
+	len = len/3-1;
+	int octet[len];
+	int i = 0;
+	int num = 0;
+	_q931 q931;
+	for (i = 0; i < len; i++) {
+		octet[i] = convert(str[3*(i+1)-1])*16+convert(str[3*(i+1)]);
+	}
+	q931.SAPI = (octet[0] & 0xfc) >> 2;
+	q931.C_R = (octet[0] & 0x02) >> 1;
+	q931.EA_0 = (octet[0] & 0x01) >> 0;
+	q931.TEI = (octet[1] & 0xfe) >> 1;
+	q931.EA_1 = (octet[1] & 0x01) >> 0;
+	q931.N_S = (octet[2] & 0xfe) >> 1;
+	q931.ZERO = (octet[2] & 0x01) >> 0;
+	q931.N_R = (octet[3] & 0xfe) >> 1;
+	q931.P = (octet[3] & 0x01) >> 0;
+	q931.Pr_di = (octet[4] & 0xff) >> 0;
+	q931.L_c_ref = (octet[5] & 0x0f) >> 0;
+	q931.flag = (octet[6] & 0x80) >> 7;
+	for (i = 0; i < q931.L_c_ref; i++)
+		num += octet[6+i];
+	printf("No: %-10d ", num);
+}
+
+int syntax_q931_list_no(char *str)
+{
+	int len = strlen(str);
+	len = len/3-1;
+	int octet[len];
+	int i = 0;
+	int num = 0;
+	_q931 q931;
+	for (i = 0; i < len; i++) {
+		octet[i] = convert(str[3*(i+1)-1])*16+convert(str[3*(i+1)]);
+	}
+	q931.SAPI = (octet[0] & 0xfc) >> 2;
+	q931.C_R = (octet[0] & 0x02) >> 1;
+	q931.EA_0 = (octet[0] & 0x01) >> 0;
+	q931.TEI = (octet[1] & 0xfe) >> 1;
+	q931.EA_1 = (octet[1] & 0x01) >> 0;
+	q931.N_S = (octet[2] & 0xfe) >> 1;
+	q931.ZERO = (octet[2] & 0x01) >> 0;
+	q931.N_R = (octet[3] & 0xfe) >> 1;
+	q931.P = (octet[3] & 0x01) >> 0;
+	q931.Pr_di = (octet[4] & 0xff) >> 0;
+	q931.L_c_ref = (octet[5] & 0x0f) >> 0;
+	q931.flag = (octet[6] & 0x80) >> 7;
+	for (i = 0; i < q931.L_c_ref; i++)
+		num += octet[6+i];
+	return num;
 }
 
 void syntax_q931(char *str)
