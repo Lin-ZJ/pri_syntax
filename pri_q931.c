@@ -25,7 +25,174 @@ void syntax_q931_list(char *str)
 	q931.flag = (octet[6] & 0x80) >> 7;
 	for (i = 0; i < q931.L_c_ref; i++)
 		num += octet[6+i];
-	printf("No: %-10d ", num);
+	num = num - 16*8*q931.flag;
+	printf("No: %-5d ", num);
+}
+
+void syntax_q931_list_photo(char *str)
+{
+	int len = strlen(str);
+	len = len/3-1;
+	int octet[len];
+	int i = 0;
+	int bit = 0;
+	_q931 q931;
+	for (i = 0; i < len; i++) {
+		octet[i] = convert(str[3*(i+1)-1])*16+convert(str[3*(i+1)]);
+	}
+	q931.SAPI = (octet[0] & 0xfc) >> 2;
+	q931.C_R = (octet[0] & 0x02) >> 1;
+	q931.EA_0 = (octet[0] & 0x01) >> 0;
+	q931.TEI = (octet[1] & 0xfe) >> 1;
+	q931.EA_1 = (octet[1] & 0x01) >> 0;
+	q931.N_S = (octet[2] & 0xfe) >> 1;
+	q931.ZERO = (octet[2] & 0x01) >> 0;
+	q931.N_R = (octet[3] & 0xfe) >> 1;
+	q931.P = (octet[3] & 0x01) >> 0;
+	q931.Pr_di = (octet[4] & 0xff) >> 0;
+	q931.L_c_ref = (octet[5] & 0x0f) >> 0;
+	q931.flag = (octet[6] & 0x80) >> 7;
+	if (q931.flag == 0) {
+		printf("|<");
+	} else {
+		printf("|");
+	}
+	bit = 6+q931.L_c_ref;
+	q931.Mes_Typ = (octet[bit] & 0x7f) >> 0;
+	switch (q931.Mes_Typ) {
+		case ALERTING:
+			printf("-------ALERTING (1)-------");
+			bit++;
+			break;
+
+		case CALL_PROCEEDING:
+			printf("----CALL PROCEEDING (2)---");
+			bit++;
+			break;
+
+		case CONNECT:
+			printf("--------CONNECT (7)-------");
+			bit++;
+			break;
+
+		case CONNECT_ACKNOWLEDGE:
+			printf("-CONNECT ACKNOWLEDGE (15)-");
+			bit++;
+			break;
+
+		case PROGRESS:
+			printf("-------PROGRESS (3)-------");
+			bit++;
+			break;
+		case SETUP:
+			printf("---------SETUP (5)--------");
+			bit++;
+			break;
+
+		case SETUP_ACKNOWLEDGE:
+			printf("--SETUP ACKNOWLEDGE (13)--");
+			bit++;
+			break;
+		case RESUME:
+			printf("--------RESUME (38)-------");
+			bit++;
+			break;
+
+		case RESUME_ACKNOWLEDGE:
+			printf("--RESUME ACKNOWLEDGE (46)-");
+			bit++;
+			break;
+		case RESUME_REJECT:
+			printf("----RESUME REJECT (34)----");
+			bit++;
+			break;
+
+		case SUSPEND:
+			printf("-------SUSPEND (37)-------");
+			bit++;
+			break;
+
+		case SUSPEND_ACKNOWLEDGE:
+			printf("-SUSPEND ACKNOWLEDGE (45)-");
+			bit++;
+			break;
+
+		case SUSPEND_REJECT:
+			printf("----SUSPEND REJECT (33)---");
+			bit++;
+			break;
+
+		case USER_INFORMATION:
+			printf("---USER INFORMATION (32)--");
+			bit++;
+			break;
+
+		case DISCONNECT:
+			printf("------DISCONNECT (69)-----");
+			bit++;
+			break;
+
+		case RELEASE:
+			printf("-------RELEASE (77)-------");
+			bit++;
+			break;
+
+		case RELEASE_COMPLETE:
+			printf("---RELEASE COMPLETE (90)--");
+			bit++;
+			break;
+
+		case RESTART:
+			printf("-------RESTART (70)-------");
+			bit++;
+			break;
+
+		case RESTART_ACKNOWLEDGE:
+			printf("-RESTART ACKNOWLEDGE (78)-");
+			bit++;
+			break;
+
+		case SEGMENT:
+			printf("-------SEGMENT (96)-------");
+			bit++;
+			break;
+
+		case CONGESTION_CONTROL:
+			printf("-CONGESTION CONTROL (121)-");
+			bit++;
+			break;
+
+		case INFORMATION:
+			printf("-----INFORMATION (123)----");
+			bit++;
+			break;
+
+		case NOTIFY:
+			printf("-------NOTIFY (110)-------");
+			bit++;
+			break;
+
+		case STATUS:
+			printf("-------STATUS (125)-------");
+			bit++;
+			break;
+
+		case STATUS_ENQUIRY:
+			printf("---STATUS ENQUIRY (117)---");
+			bit++;
+			break;
+
+		default:
+			printf("-------Unknown (%3d)------", q931.Mes_Typ);
+			goto out;
+			break;
+	}
+out:
+	if (q931.flag == 1) {
+		printf(">|\n");
+	} else {
+		printf("|\n");
+	}
 }
 
 int syntax_q931_list_no(char *str)
@@ -53,6 +220,7 @@ int syntax_q931_list_no(char *str)
 	q931.flag = (octet[6] & 0x80) >> 7;
 	for (i = 0; i < q931.L_c_ref; i++)
 		num += octet[6+i];
+	num = num - 16*8*q931.flag;
 	return num;
 }
 

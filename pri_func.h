@@ -5,5 +5,6 @@
 
 int convert(char a);
 int modify_log(char *path, char *modify_path);
+void uuid_log(FILE *fp,char* str);
 
 #endif

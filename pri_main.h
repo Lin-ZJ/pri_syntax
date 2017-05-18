@@ -93,4 +93,30 @@ typedef struct{
 #include "pri_q921.h"
 #include "pri_syntax.h"
 
+char *stdin_get_str(char *str);
+
+char *fp_get_str(char *str, FILE *fp);
+
+char *fp_get_time(char *ttime, char *str);
+
+char *fp_get_time_easy(char *ttime, char *str);
+
+char *fp_get(char *tq, char *str);
+
+int bool_q931_q921(char *str);
+
+char *fp_get_q921(char *tq921, char *str);
+
+char *fp_get_q931(char *tq931, char *str);
+
+int getInt(char *p);
+
+int getInt1(char *p);
+
+int getInt2(char *p);
+
+int getInt3(char *p);
+
+int getInt4(char *p);
+
 #endif

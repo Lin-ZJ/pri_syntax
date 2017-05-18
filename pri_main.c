@@ -3,6 +3,7 @@ int l;
 
 char *stdin_get_str(char *str)
 {
+	memset(str, 0, 100);
 	fgets(str,U_MAX,stdin);
 	if(str[strlen(str)-1] == '\n')
 		str[strlen(str)-1] = '\0';
@@ -11,6 +12,7 @@ char *stdin_get_str(char *str)
 
 char *fp_get_str(char *str, FILE *fp)
 {
+	memset(str, 0, 100);
 	fgets(str,U_MAX,fp);
 	if(str[strlen(str)-1] == '\n')
 		str[strlen(str)-1] = '\0';
@@ -22,6 +24,7 @@ char *fp_get_time(char *ttime, char *str)
 	int len;
 	int i;
 
+	memset(ttime, 0, 100);
 	len = strlen(str);
 	for (i = 0; i < len; i++) {
 		if (str[i] != ']') {
@@ -41,14 +44,102 @@ char *fp_get_time_easy(char *ttime, char *str)
 	int i;
 	int j = 0;
 
+	memset(ttime, 0, 100);
 	len = strlen(str);
 	for (i = 0; i < len; i++) {
-		if (str[i] == 'Y') {
-			ttime[j] = str[i+2];
+		if (str[i] != ']') {
+			if (str[i] >= '0' && str[i] <= '9') {
+				ttime[j] = str[i];
+				j++;
+			}
+		} else {
+			if (str[i] >= '0' && str[i] <= '9') {
+				ttime[j] = str[i];
+				j++;
+			}
+			ttime[j+1] = '\0';
+			return ttime;
 		}
 	}
 	return NULL;
 }
+
+char *fp_get(char *tq, char *str)
+{
+	int len;
+	int i,j = 0;
+	int count = 0;
+
+	memset(tq, 0, 100);
+	len = strlen(str);
+	for (i = 0; i < len; i++) {
+		if (str[i] == '[') {
+			count++;
+		}
+		if(count == 2) {
+			if (str[i] != ']') {
+				tq[j] = str[i];
+				j++;
+			} else {
+				tq[j] = str[i];
+				tq[++j] = '\0';
+				return tq;
+			}
+		}
+	}
+	return NULL;
+}
+
+int bool_q931_q921(char *str)
+{
+	int len;
+	int i,j = 0;
+
+	len = strlen(str);
+	for (i = 0; i < len; i++) {
+		if (str[i] != ']') {
+			j++;
+		} else {
+			if (j > 14) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+	}
+	return -1;
+}
+
+// char *fp_get_q921(char *tq921, char *str)
+// {
+// 	int len;
+// 	int i,j = 0;
+// 	int count = 0;
+//
+// 	len = strlen(str);
+// 	for (i = 0; i < len; i++) {
+// 		if (str[i] == '[') {
+// 			count++;
+// 		}
+// 		if(count == 2) {
+// 			if ((str[i] != ']') && (j < 13)) {
+// 				tq921[j] = str[i];
+// 				j++;
+// 			} else {
+// 				if (j >= 12) {
+// 					tq921[j] = ' ';
+// 					tq921[++j] = ']';
+// 					tq921[++j] = '\0';
+// 				} else {
+// 					tq921[j] = str[i];
+// 					tq921[++j] = '\0';
+// 				}
+// 				return tq921;
+// 			}
+// 		}
+// 	}
+// 	return NULL;
+// }
 
 char *fp_get_q921(char *tq921, char *str)
 {
@@ -56,24 +147,19 @@ char *fp_get_q921(char *tq921, char *str)
 	int i,j = 0;
 	int count = 0;
 
+	memset(tq921, 0, 100);
 	len = strlen(str);
 	for (i = 0; i < len; i++) {
 		if (str[i] == '[') {
 			count++;
 		}
 		if(count == 2) {
-			if ((str[i] != ']') && (j < 13)) {
+			if ((str[i] != ']') && (j < 14)) {
 				tq921[j] = str[i];
 				j++;
 			} else {
-				if (j >= 12) {
-					tq921[j] = ' ';
-					tq921[++j] = ']';
-					tq921[++j] = '\0';
-				} else {
-					tq921[j] = str[i];
-					tq921[++j] = '\0';
-				}
+				tq921[j] = ']';
+				tq921[++j] = '\0';
 				return tq921;
 			}
 		}
@@ -87,6 +173,7 @@ char *fp_get_q931(char *tq931, char *str)
 	int i,j = 0;
 	int count = 0;
 
+	memset(tq931, 0, 100);
 	len = strlen(str);
 	for (i = 0; i < len; i++) {
 		if (str[i] == '[') {
@@ -219,7 +306,8 @@ help:								printf("Usage :\n");
 									printf("	exit  : exit this program\n");
 									printf("	clear : clear the screen\n");
 									printf("	type <q921|q931> [-s]\n");
-									printf("	syntax <q931>\n");
+									printf("	print <Y+M+D+H+m+s+ms> : such as <2017327659566789>\n");
+									printf("	syntax <q931> [no <num>] [-o]\n");
 									// uuid_t uu;
 									// char str_uuid[100000][36];
 									// for (i = 0; i < 100000; i++) {
@@ -260,9 +348,17 @@ help:								printf("Usage :\n");
 									goto c2;
 								}
 								break;
+							case 5:
+								if (count != 2) {
+									printf("Usage : print <Y+M+D+H+m+s+ms> : such as <2017327659566789>\n");
+								} else {
+									c1_flag = 1;
+									goto c2;
+								}
+								break;
 							case 6:
 								if ((count < 2) || (count > 5)) {
-									printf("Usage : syntax <q931>\n");
+									printf("Usage : syntax <q931> [no <num>] [-o]\n");
 								} else {
 									c1_flag = 1;
 									goto c2;
@@ -277,9 +373,16 @@ c2:					case 2:
 						if (!c1_flag)
 							goto c1;
 						switch(getInt1(opts[1])*10+getInt(opts[0])) {
+							case 5:
+								if (count == 2) {
+									// printf("print %s\n", opts[1]);
+									fp = fopen(argv[1], "a+");
+									uuid_log(fp, opts[1]);
+								}
+								break;
 							case 14:
 								if (count == 2) {
-									printf("Type is q921\n");
+									// printf("Type is q921\n");
 									fp = fopen(argv[1], "a+");
 									if (fp != NULL) {
 										while(!feof(fp))
@@ -301,7 +404,7 @@ c2:					case 2:
 								break;
 							case 24:
 								if (count == 2) {
-									printf("type is q931\n");
+									// printf("type is q931\n");
 									fp = fopen(argv[1], "a+");
 									if (fp != NULL)	{
 										while(!feof(fp))
@@ -323,7 +426,7 @@ c2:					case 2:
 								break;
 							case 26:
 								if (count == 2) {
-									printf("syntax q931\n");
+									// printf("syntax q931\n");
 									fp = fopen(argv[1], "a+");
 									if (fp != NULL) {
 										while(!feof(fp))
@@ -355,7 +458,7 @@ c3:					case 3:
 							goto c2;
 						switch(getInt2(opts[2])*100+getInt1(opts[1])*10+getInt(opts[0])) {
 							case 114:
-								printf("syntax q921\n");
+								// printf("syntax q921\n");
 								fp = fopen(argv[1], "a+");
 								if (fp != NULL) {
 									while(!feof(fp))
@@ -374,7 +477,7 @@ c3:					case 3:
 								fclose(fp);
 								break;
 							case 124:
-								printf("syntax q931\n");
+								// printf("syntax q931\n");
 								fp = fopen(argv[1], "a+");
 								if (fp != NULL) {
 									while(!feof(fp))
@@ -394,7 +497,7 @@ c3:					case 3:
 								break;
 							case 226:
 								if (count == 4) {
-									printf("syntax q931 no %s\n", opts[3]);
+									// printf("syntax q931 no %s\n", opts[3]);
 									char tmp[100];
 									sprintf(tmp, "%s", opts[3]);
 									fp = fopen(argv[1], "a+");
@@ -437,7 +540,30 @@ c5:					case 5:
 							goto c4;
 						switch(getInt4(opts[4])*10000+getInt3(opts[3])*1000+getInt2(opts[2])*100+getInt1(opts[1])*10+getInt(opts[0])) {
 							case 10226:
-								printf("syntax q931 no %s -s\n", opts[3]);
+								if (count == 5) {
+									// printf("syntax q931 no %s -o\n", opts[3]);
+									char tmp[100];
+									sprintf(tmp, "%s", opts[3]);
+									fp = fopen(argv[1], "a+");
+									if (fp != NULL) {
+										while(!feof(fp))
+										{
+											fp_get_str(c, fp);
+											if(strcmp(c, "\0") != 0) {
+												fp_get_time(ttime, c);
+												fp_get_q931(tq, c);
+												if (strcmp(tq, "\0") != 0) {
+													sprintf(c, "%d", syntax_q931_list_no(tq));
+													if (strcmp(c, tmp) == 0) {
+														printf("%s ", ttime);
+														syntax_q931_list_photo(tq);
+													}
+												}
+											}
+										}
+									}
+									fclose(fp);
+								}
 								break;
 							default:
 								goto help;
